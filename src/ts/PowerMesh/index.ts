@@ -147,6 +147,10 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 			}
 
+		} else {
+
+			geo = new THREE.BufferGeometry()
+
 		}
 
 		/*-------------------------------
@@ -241,7 +245,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		let envMapResolution = 256;
 
 		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( envMapResolution, {
-			format: THREE.RGBFormat,
+			format: THREE.RGBAFormat,
 			generateMipmaps: true,
 			magFilter: THREE.LinearFilter,
 			minFilter: THREE.LinearFilter

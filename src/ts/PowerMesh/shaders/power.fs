@@ -154,7 +154,7 @@ uniform sampler2D envMap;
 uniform float maxLodLevel;
 
 #define ENVMAP_TYPE_CUBE_UV
-vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
+vec4 envMapTexelToLinear( vec4 value ) { return LinearTosRGB( value ); }
 #include <cube_uv_reflection_fragment>
 
 /*-------------------------------
@@ -588,7 +588,7 @@ void main( void ) {
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
-	vec4 envMapColor = sRGBToLinear( textureCubeUV( envMap, geo.normalWorld, 1.0 ) );
+	vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) );
 	
 	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 

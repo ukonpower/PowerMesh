@@ -4,11 +4,14 @@ import { GlobalManager } from './GlobalManager';
 import { RenderPipeline } from './RenderPipeline';
 import { CameraController } from './CameraController';
 import { AssetManager } from './GlobalManager/AssetManager';
+import { World } from './World';
 export class MainScene extends ORE.BaseLayer {
 
 	private gManager?: GlobalManager;
 	private renderPipeline?: RenderPipeline;
 	private cameraController?: CameraController;
+
+	private world?: World;
 
 	constructor() {
 
@@ -38,6 +41,9 @@ export class MainScene extends ORE.BaseLayer {
 
 			}
 
+			let scene = this.scene.getObjectByName( 'Scene' ) as THREE.Object3D;
+			scene.visible = false;
+
 			this.initScene();
 			this.onResize();
 
@@ -47,17 +53,16 @@ export class MainScene extends ORE.BaseLayer {
 
 	private initScene() {
 
+		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraData' ) );
+
 		if ( this.renderer ) {
 
 			this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
 
 		}
 
-		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraData' ) );
-
-		let light = new THREE.DirectionalLight();
-		light.position.set( 1, 2, 1 );
-		this.scene.add( light );
+		this.world = new World( this.commonUniforms, this.scene );
+		this.scene.add( this.world );
 
 	}
 

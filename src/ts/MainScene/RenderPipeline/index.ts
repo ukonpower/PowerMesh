@@ -271,34 +271,6 @@ export class RenderPipeline {
 		this.renderer.autoClear = false;
 
 		/*------------------------
-			Bloom
-		------------------------*/
-		this.bloomBrightPP.render( {
-			sceneTex: this.renderTargets.rt1.texture
-		}, this.renderTargets.rt2 );
-
-		let target: THREE.WebGLRenderTarget;
-		let uni = this.bloomBlurPP.effect.material.uniforms;
-		uni.backbuffer.value = this.renderTargets.rt2.texture;
-
-		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
-
-			uni.count.value = i;
-
-			uni.direction.value = false;
-			target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
-			this.bloomBlurPP.render( null, target );
-
-			uni.direction.value = true;
-			uni.backbuffer.value = target.texture;
-			target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
-			this.bloomBlurPP.render( null, target );
-
-			uni.backbuffer.value = target.texture;
-
-		}
-
-		/*------------------------
 			SMAA
 		------------------------*/
 		this.smaaEdgePP.render( {
