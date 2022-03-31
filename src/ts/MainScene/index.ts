@@ -1,23 +1,58 @@
-import * as ORE from 'ore-three-ts';
 import * as THREE from 'three';
+import * as ORE from 'ore-three-ts';
+
 import { GlobalManager } from './GlobalManager';
 import { RenderPipeline } from './RenderPipeline';
 import { CameraController } from './CameraController';
-import { AssetManager } from './GlobalManager/AssetManager';
 import { World } from './World';
+import { Pane } from 'tweakpane';
+
+import CameraControls from 'camera-controls';
+CameraControls.install( { THREE: THREE } );
+
 export class MainScene extends ORE.BaseLayer {
 
 	private gManager?: GlobalManager;
 	private renderPipeline?: RenderPipeline;
-	private cameraController?: CameraController;
 
+	//  world
 	private world?: World;
+
+	// cameraControls
+	private cameraControls?: CameraControls;
+
+	// TweakPane
+	private pane: Pane;
+	private params = {
+		gltf: '',
+	};
 
 	constructor() {
 
 		super();
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} );
+
+		/*-------------------------------
+			TweakPane
+		-------------------------------*/
+
+		this.pane = new Pane();
+
+		let gltfInput = this.pane.addInput( this.params, 'gltf', { options: {
+			DamagedHelmet: 'DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
+			FlightHelmet: 'FlightHelmet/glTF/FlightHelmet.gltf',
+			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
+			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
+			NormalTangentTest: 'NormalTangentTest',
+			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
+		} } );
+
+		gltfInput.on( 'change', ( value ) => {
+
+			this.loadGltf( value.value );
+
+		} );
 
 	}
 
@@ -27,50 +62,58 @@ export class MainScene extends ORE.BaseLayer {
 
 		this.gManager = new GlobalManager();
 
-		this.gManager.assetManager.load( { assets: [
-			{ name: 'scene', path: './assets/scene/scene.glb', type: 'gltf' }
-		] } );
-
-		this.gManager.assetManager.addEventListener( 'loadMustAssets', ( e ) => {
-
-			let gltf = ( e.target as AssetManager ).getGltf( 'scene' );
-
-			if ( gltf ) {
-
-				this.scene.add( gltf.scene );
-
-			}
-
-			let scene = this.scene.getObjectByName( 'Scene' ) as THREE.Object3D;
-			scene.visible = false;
-
-			this.initScene();
-			this.onResize();
-
-		} );
+		this.initScene();
+		this.onResize();
 
 	}
 
 	private initScene() {
 
-		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraData' ) );
-
 		if ( this.renderer ) {
+
+			/*-------------------------------
+				RenderPipeline
+			-------------------------------*/
 
 			this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
 
+			/*-------------------------------
+				CameraControls
+			-------------------------------*/
+
+			this.camera.position.set( 2, 1, 2 );
+
+			this.cameraControls = new CameraControls( this.camera, this.renderer.domElement );
+			this.cameraControls.dollySpeed = 0.1;
+
 		}
+
+		/*-------------------------------
+			World
+		-------------------------------*/
 
 		this.world = new World( this.commonUniforms, this.scene );
 		this.scene.add( this.world );
+
+		this.loadGltf( this.params.gltf );
+
+	}
+
+	private loadGltf( gltfSrc: string ) {
+
+		if ( this.world ) {
+
+			this.world.loadGLTF( gltfSrc );
+
+		}
 
 	}
 
 	public animate( deltaTime: number ) {
 
-		if ( this.cameraController ) {
+		if ( this.cameraControls ) {
 
-			this.cameraController.update( deltaTime );
+			let update = this.cameraControls.update( deltaTime );
 
 		}
 
@@ -86,12 +129,6 @@ export class MainScene extends ORE.BaseLayer {
 
 		super.onResize();
 
-		if ( this.cameraController ) {
-
-			this.cameraController.resize( this.info );
-
-		}
-
 		if ( this.renderPipeline ) {
 
 			this.renderPipeline.resize( this.info.size.canvasPixelSize );
@@ -101,12 +138,6 @@ export class MainScene extends ORE.BaseLayer {
 	}
 
 	public onHover( args: ORE.TouchEventArgs ) {
-
-		if ( this.cameraController ) {
-
-			this.cameraController.updateCursor( args.normalizedPosition );
-
-		}
 
 	}
 

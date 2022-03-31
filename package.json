@@ -45,8 +45,11 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
+    "@tweakpane/core": "^1.0.8",
     "@types/three": "^0.137.0",
+    "camera-controls": "^1.34.2",
     "ore-three-ts": "^2.1.0",
-    "three": "^0.137.4"
+    "three": "^0.137.4",
+    "tweakpane": "^3.0.7"
   }
 }

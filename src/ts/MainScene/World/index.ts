@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import * as ORE from 'ore-three-ts';
 import { PowerMesh } from '../../PowerMesh';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export class World extends THREE.Object3D {
 
 	private commonUniforms: ORE.Uniforms;
-
-	scene: THREE.Scene;
+	private scene: THREE.Scene;
+	private gltfLoader: GLTFLoader;
+	private model: THREE.Group | null = null;
 
 	constructor( parentUniforms: ORE.Uniforms, scene: THREE.Scene ) {
 
@@ -26,11 +28,54 @@ export class World extends THREE.Object3D {
 		this.add( light );
 
 		/*-------------------------------
-			Model
+			glTF Loader
 		-------------------------------*/
 
-		let mesh = new PowerMesh( new THREE.SphereBufferGeometry() );
-		this.add( mesh );
+		this.gltfLoader = new GLTFLoader();
+
+	}
+
+	public loadGLTF( gltfSrc: string ) {
+
+		this.gltfLoader.load( './assets/gltf/2.0/' + gltfSrc, ( gltf ) => {
+
+			if ( this.model ) {
+
+				this.disposeGLTF( this.model );
+
+			}
+
+			this.model = gltf.scene;
+
+			this.add( gltf.scene );
+
+		} );
+
+	}
+
+	private disposeGLTF( gltf: THREE.Group ) {
+
+		gltf.traverse( item => {
+
+			let mesh = item as THREE.Mesh;
+
+			if ( mesh.isMesh ) {
+
+				mesh.geometry.dispose();
+
+				let mat = mesh.material as THREE.ShaderMaterial;
+
+				if ( mat.isShaderMaterial ) [
+
+					mat.dispose()
+
+				];
+
+			}
+
+		} );
+
+		this.remove( gltf );
 
 	}
 
