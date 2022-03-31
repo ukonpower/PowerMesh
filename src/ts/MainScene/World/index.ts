@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from 'ore-three-ts';
+
 import { PowerMesh } from '../../PowerMesh';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
@@ -13,6 +14,8 @@ export class World extends THREE.Object3D {
 
 	private envMapLoader: THREE.CubeTextureLoader;
 	private envMap: THREE.CubeTexture | null = null;
+
+	private powerMeshList: PowerMesh[] = [];
 
 	constructor( parentUniforms: ORE.Uniforms, scene: THREE.Scene ) {
 
@@ -72,11 +75,15 @@ export class World extends THREE.Object3D {
 						uniforms: this.commonUniforms
 					} );
 
+					powerMesh.updateEnvMap( null );
+
 					let parent = mesh.parent;
 
 					if ( parent ) {
 
 						parent.add( powerMesh );
+
+						this.powerMeshList.push( powerMesh );
 
 					}
 
@@ -146,6 +153,12 @@ export class World extends THREE.Object3D {
 			}
 
 			this.scene.background = tex;
+
+			this.powerMeshList.forEach( mesh => {
+
+				mesh.updateEnvMap( null );
+
+			} );
 
 		} ) );
 

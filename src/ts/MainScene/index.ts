@@ -137,7 +137,7 @@ export class MainScene extends ORE.BaseLayer {
 
 		if ( this.cameraControls ) {
 
-			let update = this.cameraControls.update( deltaTime );
+			this.cameraControls.update( deltaTime );
 
 		}
 

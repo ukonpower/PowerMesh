@@ -12,7 +12,8 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 	// envMap
 	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
 	protected envMapCamera: THREE.CubeCamera;
-	public envMapUpdate: boolean;
+	protected envMapUpdate: boolean;
+	protected envMapSrc: THREE.CubeTexture | THREE.Texture | null;
 
 	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
 
@@ -24,6 +25,12 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		let uni = ORE.UniformsLib.mergeUniforms( materialOption.uniforms || {}, {
 			envMap: {
+				value: null
+			},
+			envMapIntensity: {
+				value: null
+			},
+			iblIntensity: {
 				value: null
 			},
 			maxLodLevel: {
@@ -167,6 +174,14 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		}
 
+		// tangents
+
+		if ( ! geo.getAttribute( 'tangent' ) ) {
+
+			geo.computeTangents();
+
+		}
+
 		/*-------------------------------
 			Material
 		-------------------------------*/
@@ -180,7 +195,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			transparent: true,
 			side: THREE.DoubleSide,
 			extensions: {
-				derivatives: true
+				derivatives: true,
 			},
 			defines: {
 			},
@@ -262,6 +277,9 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			EnvMap
 		-------------------------------*/
 
+		this.envMapSrc = null;
+		this.envMapUpdate = false;
+
 		let envMapResolution = 256;
 
 		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( envMapResolution, {
@@ -274,8 +292,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		this.envMapCamera = new THREE.CubeCamera( 0.001, 1000, this.envMapRenderTarget );
 		this.add( this.envMapCamera );
 
-		this.envMapUpdate = true;
-
 		this.onBeforeRender = ( renderer, scene, camera ) => {
 
 			this.dispatchEvent( {
@@ -287,10 +303,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		};
 
-		/*-------------------------------
-			BeforeRender
-		-------------------------------*/
-
 		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
 			let renderer = e.renderer;
@@ -301,20 +313,37 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				EnvMap
 			-------------------------------*/
 
-			if ( this.envMapUpdate && ! camera.userData.shadowCamera ) {
+			if ( this.envMapUpdate ) {
 
-				this.visible = false;
-
-				this.envMapCamera.update( renderer, scene );
-
-				this.visible = true;
+				let envMapRT: THREE.WebGLRenderTarget | null = null;
 
 				let pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
-				let envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
+
+				if ( this.envMapSrc ) {
+
+					if ( 'isCubeTexture' in this.envMapSrc ) {
+
+						envMapRT = pmremGenerator.fromCubemap( this.envMapSrc );
+
+					} else {
+
+						envMapRT = pmremGenerator.fromEquirectangular( this.envMapSrc );
+
+					}
+
+				} else {
+
+					this.visible = false;
+
+					this.envMapCamera.update( renderer, scene );
+					envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
+
+					this.visible = true;
+
+				}
 
 				this.commonUniforms.envMap.value = envMapRT.texture;
-
 				this.envMapUpdate = false;
 
 			}
@@ -372,6 +401,41 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		};
 
 		this.addEventListener( 'dispose', onDispose );
+
+	}
+
+	/*-------------------------------
+		EnvMap / IBL
+	-------------------------------*/
+
+	public updateEnvMap( envMap: THREE.CubeTexture | THREE.Texture | null = null ) {
+
+		this.envMapSrc = envMap;
+		this.envMapUpdate = true;
+
+		if ( this.commonUniforms.envMapIntensity.value == null ) {
+
+			this.commonUniforms.envMapIntensity.value = 1;
+
+		}
+
+		if ( this.commonUniforms.iblIntensity.value == null ) {
+
+			this.commonUniforms.iblIntensity.value = 1;
+
+		}
+
+	}
+
+	public set envMapIntensity( value: number ) {
+
+		this.commonUniforms.envMapIntensity.value = value;
+
+	}
+
+	public set iblIntensity( value: number ) {
+
+		this.commonUniforms.iblIntensity.value = value;
 
 	}
 
