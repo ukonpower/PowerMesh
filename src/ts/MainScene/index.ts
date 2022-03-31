@@ -25,6 +25,7 @@ export class MainScene extends ORE.BaseLayer {
 	private pane: Pane;
 	private params = {
 		gltf: '',
+		environment: ''
 	};
 
 	constructor() {
@@ -48,9 +49,21 @@ export class MainScene extends ORE.BaseLayer {
 			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
 		} } );
 
-		gltfInput.on( 'change', ( value ) => {
+		gltfInput.on( 'change', ( e ) => {
 
-			this.loadGltf( value.value );
+			this.loadGltf( e.value );
+
+		} );
+
+		let envMapInput = this.pane.addInput( this.params, 'environment', { options: {
+			green_point_park: 'green_point_park',
+			solitude_night: 'solitude_night',
+			studio_small: 'studio_small',
+		} } );
+
+		envMapInput.on( 'change', ( e ) =>{
+
+			this.loadEnvMap( e.value );
 
 		} );
 
@@ -96,6 +109,7 @@ export class MainScene extends ORE.BaseLayer {
 		this.scene.add( this.world );
 
 		this.loadGltf( this.params.gltf );
+		this.loadEnvMap( this.params.environment );
 
 	}
 
@@ -104,6 +118,16 @@ export class MainScene extends ORE.BaseLayer {
 		if ( this.world ) {
 
 			this.world.loadGLTF( gltfSrc );
+
+		}
+
+	}
+
+	private loadEnvMap( envMapSrc: string ) {
+
+		if ( this.world ) {
+
+			this.world.loadEnvMap( envMapSrc );
 
 		}
 

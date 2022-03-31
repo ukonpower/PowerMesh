@@ -11,6 +11,9 @@ export class World extends THREE.Object3D {
 	private gltfLoader: GLTFLoader;
 	private model: THREE.Group | null = null;
 
+	private envMapLoader: THREE.CubeTextureLoader;
+	private envMap: THREE.CubeTexture | null = null;
+
 	constructor( parentUniforms: ORE.Uniforms, scene: THREE.Scene ) {
 
 		super();
@@ -35,7 +38,17 @@ export class World extends THREE.Object3D {
 
 		this.gltfLoader = new GLTFLoader();
 
+		/*-------------------------------
+			CubeTexture Loader
+		-------------------------------*/
+
+		this.envMapLoader = new THREE.CubeTextureLoader();
+
 	}
+
+	/*-------------------------------
+		glTF
+	-------------------------------*/
 
 	public loadGLTF( gltfSrc: string ) {
 
@@ -107,6 +120,34 @@ export class World extends THREE.Object3D {
 		} );
 
 		this.remove( gltf );
+
+	}
+
+	/*-------------------------------
+		envMap
+	-------------------------------*/
+
+	public loadEnvMap( envMapName: string ) {
+
+		this.envMapLoader.load( [
+			'./assets/envmap/' + envMapName + '/px.png',
+			'./assets/envmap/' + envMapName + '/nx.png',
+			'./assets/envmap/' + envMapName + '/py.png',
+			'./assets/envmap/' + envMapName + '/ny.png',
+			'./assets/envmap/' + envMapName + '/pz.png',
+			'./assets/envmap/' + envMapName + '/nz.png',
+		], ( tex => {
+
+			if ( this.envMap ) {
+
+				this.envMap.dispose();
+				this.scene.background = null;
+
+			}
+
+			this.scene.background = tex;
+
+		} ) );
 
 	}
 
