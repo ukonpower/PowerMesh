@@ -82,6 +82,16 @@ uniform float time;
 
 #endif
 
+#ifdef USE_EMISSION_MAP
+
+	uniform sampler2D emissionMap;
+
+#else
+
+	uniform vec3 emission;
+
+#endif
+
 #ifdef REFLECTPLANE
 
 	uniform sampler2D reflectionTex;
@@ -413,7 +423,7 @@ void main( void ) {
 
 	#ifdef USE_MAP
 
-		vec4 color = texture2D( map, vUv );
+		vec4 color = LinearTosRGB( texture2D( map, vUv ) );
 		mat.albedo = color.xyz;
 
 	#else
@@ -595,7 +605,7 @@ void main( void ) {
 		Reflection
 	-------------------------------*/
 	
-	float EF = mix( fresnel( dNV ), 1.0, 0.0 );
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 
 	#ifdef REFLECTPLANE
 	
@@ -621,6 +631,20 @@ void main( void ) {
 	
 		outColor += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 	
+	#endif
+
+	/*-------------------------------
+		Emission
+	-------------------------------*/
+
+	#ifdef USE_EMISSION_MAP
+
+		outColor += LinearTosRGB( texture2D( emissionMap, vUv ) ).xyz;
+	
+	#elif
+
+		outColor += emission;;
+
 	#endif
 
 	gl_FragColor = vec4( outColor, outOpacity );

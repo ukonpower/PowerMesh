@@ -145,6 +145,20 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				}
 
+				if ( mat.emissiveMap ) {
+
+					uni.emissionMap = {
+						value: mat.emissiveMap
+					};
+
+				} else {
+
+					uni.emission = {
+						value: mat.emissive
+					};
+
+				}
+
 			}
 
 		} else {
@@ -200,6 +214,12 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		if ( uni.normalMap ) {
 
 			mat.defines.USE_NORMAL_MAP = '';
+
+		}
+
+		if ( uni.emissionMap ) {
+
+			mat.defines.USE_EMISSION_MAP = '';
 
 		}
 
