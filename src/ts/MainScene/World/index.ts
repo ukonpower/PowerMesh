@@ -7,6 +7,7 @@ export class World extends THREE.Object3D {
 
 	private commonUniforms: ORE.Uniforms;
 	private scene: THREE.Scene;
+
 	private gltfLoader: GLTFLoader;
 	private model: THREE.Group | null = null;
 
@@ -18,6 +19,7 @@ export class World extends THREE.Object3D {
 		} );
 
 		this.scene = scene;
+		this.scene.background = new THREE.Color( "#CCC" );
 
 		/*-------------------------------
 			Light
@@ -47,7 +49,32 @@ export class World extends THREE.Object3D {
 
 			this.model = gltf.scene;
 
-			this.add( gltf.scene );
+			this.model.traverse( obj => {
+
+				let mesh = obj as THREE.Mesh;
+
+				if ( mesh.isMesh ) {
+
+					let powerMesh = new PowerMesh( mesh, {
+						uniforms: this.commonUniforms
+					} );
+
+					let parent = mesh.parent;
+
+					if ( parent ) {
+
+						parent.add( powerMesh );
+
+					}
+
+					mesh.visible = false;
+
+				}
+
+			} );
+
+			this.add( this.model );
+
 
 		} );
 
@@ -57,15 +84,19 @@ export class World extends THREE.Object3D {
 
 		gltf.traverse( item => {
 
-			let mesh = item as THREE.Mesh;
+			let mesh = item as THREE.Mesh | PowerMesh;
 
-			if ( mesh.isMesh ) {
+			if ( 'isPowerMesh' in mesh ) {
+
+				mesh.dispose();
+
+			} else if ( mesh.isMesh ) {
 
 				mesh.geometry.dispose();
 
 				let mat = mesh.material as THREE.ShaderMaterial;
 
-				if ( mat.isShaderMaterial ) [
+				if ( 'isShaderMaterial' in mat ) [
 
 					mat.dispose()
 

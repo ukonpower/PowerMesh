@@ -149,7 +149,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		} else {
 
-			geo = new THREE.BufferGeometry()
+			geo = new THREE.BufferGeometry();
 
 		}
 
@@ -267,6 +267,10 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		};
 
+		/*-------------------------------
+			BeforeRender
+		-------------------------------*/
+
 		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
 			let renderer = e.renderer;
@@ -332,6 +336,28 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			}
 
 		} );
+
+		/*-------------------------------
+			Dispose
+		-------------------------------*/
+
+		const onDispose = () => {
+
+			this.envMapRenderTarget.dispose();
+			this.geometry.dispose();
+			this.material.dispose();
+
+			this.removeEventListener( 'dispose', onDispose );
+
+		};
+
+		this.addEventListener( 'dispose', onDispose );
+
+	}
+
+	public dispose() {
+
+		this.dispatchEvent( { type: 'dispsoe' } );
 
 	}
 
