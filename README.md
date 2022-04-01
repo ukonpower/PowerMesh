@@ -25,5 +25,4 @@ npm run dev
 
 マテリアルの品質検証のために以下のglTFモデルを利用させていただいております。
 
-[KhronosGroup/glTF-Sample-Models]([https://](https://github.com/KhronosGroup/glTF-Sample-Models))
-
+[KhronosGroup/glTF-Sample-Models](https://github.com/KhronosGroup/glTF-Sample-Models)
