@@ -299,7 +299,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		} );
 
 		this.envMapCamera = new THREE.CubeCamera( 0.001, 1000, this.envMapRenderTarget );
-		this.add( this.envMapCamera );
+		this.getWorldPosition( this.envMapCamera.position );
 
 		this.onBeforeRender = ( renderer, scene, camera ) => {
 
