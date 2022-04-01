@@ -2,14 +2,28 @@
 
 Three.jsで使えるオレオレPBRマテリアル
 
-## Install
+## Usage
+### Install
 
-```
-npm install
-```
+1. パッケージのインストール
+	```
+	npm install
+	```
 
-## Run
+1. サブモジュールをpull
+	```
+	git submodule init
+	git submodule update
+	```
+### Run
 
 ```
 npm run dev
 ```
+
+## Libraries
+
+マテリアルの品質検証のために以下のglTFモデルを利用させていただいております。
+
+[KhronosGroup/glTF-Sample-Models]([https://](https://github.com/KhronosGroup/glTF-Sample-Models))
+
