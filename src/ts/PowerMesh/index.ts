@@ -178,7 +178,16 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		if ( ! geo.getAttribute( 'tangent' ) ) {
 
-			geo.computeTangents();
+			if (
+				geo.getIndex() &&
+				geo.getAttribute( 'position' ) &&
+				geo.getAttribute( 'normal' ) &&
+				geo.getAttribute( 'uv' )
+			) {
+
+				geo.computeTangents();
+
+			}
 
 		}
 
