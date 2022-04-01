@@ -364,13 +364,16 @@ vec3 lambert( vec3 diffuseColor ) {
 
 float gSchlick( float d, float k ) {
 
-	return d / (d * ( 1.0 - k ) + k );
+	if( d == 0.0 ) return 0.0;
+
+	return d / ( d * ( 1.0 - k ) + k );
 	
 }
 
 float gSmith( float dNV, float dNL, float roughness ) {
 
-	float k = clamp( dot( roughness, sqrt( 2.0 / PI ) ), 0.0, 1.0 );
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );
+
 	return gSchlick( dNV, k ) * gSchlick( dNL, k );
 	
 }
@@ -584,7 +587,7 @@ void main( void ) {
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
-	vec4 envMapColor = textureCubeUV( envMap, geo.normalWorld, 1.0 ) * iblIntensity * envMapIntensity;
+	vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) ) * iblIntensity * envMapIntensity;
 	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	/*-------------------------------
@@ -615,7 +618,7 @@ void main( void ) {
 
 	#else
 	
-		outColor += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF * envMapIntensity * ( 1.0 - mat.roughness * 0.8 );
+		outColor += mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * EF * envMapIntensity;
 	
 	#endif
 
@@ -634,4 +637,5 @@ void main( void ) {
 	#endif
 
 	gl_FragColor = vec4( outColor, outOpacity );
+
 }
