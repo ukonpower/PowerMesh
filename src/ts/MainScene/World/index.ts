@@ -3,6 +3,7 @@ import * as ORE from 'ore-three-ts';
 
 import { PowerMesh } from '../../PowerMesh';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import CameraControls from 'camera-controls';
 
 export class World extends THREE.Object3D {
 
@@ -10,7 +11,7 @@ export class World extends THREE.Object3D {
 	private scene: THREE.Scene;
 
 	private gltfLoader: GLTFLoader;
-	private model: THREE.Group | null = null;
+	public model: THREE.Group | null = null;
 
 	private envMapLoader: THREE.CubeTextureLoader;
 	private envMap: THREE.CubeTexture | null = null;
@@ -95,6 +96,7 @@ export class World extends THREE.Object3D {
 
 			this.add( this.model );
 
+			this.dispatchEvent( { type: 'updateModel' } );
 
 		} );
 
@@ -161,6 +163,41 @@ export class World extends THREE.Object3D {
 			} );
 
 		} ) );
+
+	}
+
+	public fit( camera: THREE.PerspectiveCamera, controls: CameraControls ) {
+
+		if ( ! this.model ) return;
+
+		let fitOffset = 1.2;
+
+		let box = new THREE.Box3();
+		let size = new THREE.Vector3();
+		let center = new THREE.Vector3();
+
+		box.setFromObject( this.model );
+		box.getSize( size );
+		box.getCenter( center );
+
+		controls.setTarget( center.x, center.y, center.z );
+
+		const maxSize = Math.max( size.x, size.y, size.z );
+		const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * camera.fov / 360 ) );
+		const fitWidthDistance = fitHeightDistance / camera.aspect;
+		const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
+
+		const direction = center.clone()
+			.sub( camera.position )
+			.normalize()
+			.multiplyScalar( distance );
+
+		camera.near = distance / 100;
+		camera.far = distance * 100;
+		camera.updateProjectionMatrix();
+
+		let p = center.clone().sub( direction );
+		controls.setPosition( p.x, p.y, p.z );
 
 	}
 

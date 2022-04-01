@@ -3,7 +3,6 @@ import * as ORE from 'ore-three-ts';
 
 import { GlobalManager } from './GlobalManager';
 import { RenderPipeline } from './RenderPipeline';
-import { CameraController } from './CameraController';
 import { World } from './World';
 import { Pane } from 'tweakpane';
 
@@ -41,10 +40,10 @@ export class MainScene extends ORE.BaseLayer {
 		this.pane = new Pane();
 
 		let gltfInput = this.pane.addInput( this.params, 'gltf', { options: {
+			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
+			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			DamagedHelmet: 'DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
 			FlightHelmet: 'FlightHelmet/glTF/FlightHelmet.gltf',
-			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
-			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
 			NormalTangentTest: 'NormalTangentTest',
 			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
 		} } );
@@ -110,6 +109,16 @@ export class MainScene extends ORE.BaseLayer {
 
 		this.loadGltf( this.params.gltf );
 		this.loadEnvMap( this.params.environment );
+
+		this.world.addEventListener( 'updateModel', () => {
+
+			if ( this.world && this.cameraControls ) {
+
+				this.world.fit( this.camera, this.cameraControls );
+
+			}
+
+		} );
 
 	}
 
