@@ -44,7 +44,7 @@ export class MainScene extends ORE.BaseLayer {
 			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			DamagedHelmet: 'DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
 			FlightHelmet: 'FlightHelmet/glTF/FlightHelmet.gltf',
-			NormalTangentTest: 'NormalTangentTest',
+			NormalTangentTest: 'NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
 			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
 		} } );
 
