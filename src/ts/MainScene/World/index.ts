@@ -76,7 +76,11 @@ export class World extends THREE.Object3D {
 						uniforms: this.commonUniforms
 					} );
 
-					powerMesh.updateEnvMap( null );
+					if ( this.envMap ) {
+
+						powerMesh.updateEnvMap( this.envMap );
+
+					}
 
 					let parent = mesh.parent;
 
@@ -155,10 +159,11 @@ export class World extends THREE.Object3D {
 			}
 
 			this.scene.background = tex;
+			this.envMap = tex;
 
 			this.powerMeshList.forEach( mesh => {
 
-				mesh.updateEnvMap( null );
+				mesh.updateEnvMap( tex );
 
 			} );
 
