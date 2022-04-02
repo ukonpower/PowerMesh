@@ -175,7 +175,7 @@ export class World extends THREE.Object3D {
 
 		if ( ! this.model ) return;
 
-		let fitOffset = 1.2;
+		let fitOffset = 0.4;
 
 		let box = new THREE.Box3();
 		let size = new THREE.Vector3();

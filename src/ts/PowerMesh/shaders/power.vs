@@ -23,17 +23,21 @@ void main( void ) {
 	vUv = uv;
 	
 	vec3 transformedNormal = normalMatrix * normal;
-	#ifdef FLIP_SIDED
-		transformedNormal = - transformedNormal;
-	#endif
-	vNormal = normalize( transformedNormal );
+	vec4 flipedTangent = tangent;
+	flipedTangent.w *= -1.0;
 
-	vTangent = normalize( ( modelViewMatrix * vec4( tangent.xyz, 0.0 ) ).xyz );
-	vBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );
+	#ifdef FLIP_SIDED
+		transformedNormal *= -1.0;
+		flipedTangent *= -1.0;
+	#endif
+	
+	vNormal = normalize( transformedNormal );
+	vTangent = normalize( ( modelViewMatrix * vec4( flipedTangent.xyz, 0.0 ) ).xyz );
+	vBitangent = normalize( cross( vNormal, vTangent ) * flipedTangent.w );
 	vViewPos = -mvPosition.xyz;
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
-
+	
 	vec4 shadowModelPos = shadowLightModelViewMatrix * vec4( pos + normal * 0.01, 1.0 );
 	vec4 shadowScreenPos = shadowLightProjectionMatrix * shadowModelPos;
 	vShadowMapCoord = shadowScreenPos.xyz / shadowScreenPos.w * 0.5 + 0.5;

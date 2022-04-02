@@ -494,7 +494,7 @@ void main( void ) {
 		Geometry
 	-------------------------------*/
 
-	float faceDirection = gl_FrontFacing ? 1.0 : 1.0;
+	float faceDirection = gl_FrontFacing ? 1.0 : -1.0;
 
 	Geometry geo;
 	geo.pos = -vViewPos;
@@ -505,14 +505,22 @@ void main( void ) {
 
 	#ifdef USE_NORMAL_MAP
 		
-		vec3 tangent = normalize( vTangent ) * faceDirection;
-		vec3 bitangent = normalize( vBitangent ) * faceDirection;
+		vec3 tangent = normalize( vTangent );
+		vec3 bitangent = normalize( vBitangent );
+
+		#ifdef DOUBLE_SIDED
+
+			tangent *= faceDirection;
+			bitangent *= faceDirection;
+		
+		#endif
+		
 		mat3 vTBN = mat3( tangent, bitangent, geo.normal );
 		
 		vec3 mapN = texture2D( normalMap, vUv ).xyz;
 		mapN = mapN * 2.0 - 1.0;
 		geo.normal = normalize( vTBN * mapN );
-		
+
 	#endif
 	
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );

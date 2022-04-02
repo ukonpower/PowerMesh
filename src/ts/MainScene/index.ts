@@ -40,10 +40,10 @@ export class MainScene extends ORE.BaseLayer {
 		this.pane = new Pane();
 
 		let gltfInput = this.pane.addInput( this.params, 'gltf', { options: {
-			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
-			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			DamagedHelmet: 'DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
 			FlightHelmet: 'FlightHelmet/glTF/FlightHelmet.gltf',
+			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
+			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			NormalTangentTest: 'NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
 			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
 		} } );
