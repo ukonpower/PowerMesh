@@ -40,12 +40,12 @@ export class MainScene extends ORE.BaseLayer {
 		this.pane = new Pane();
 
 		let gltfInput = this.pane.addInput( this.params, 'gltf', { options: {
-			DamagedHelmet: 'DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
-			FlightHelmet: 'FlightHelmet/glTF/FlightHelmet.gltf',
-			MetalRoughSpheresNoTextures: 'MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
-			MetalRoughSpheres: 'MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
-			NormalTangentTest: 'NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
-			EnvironmentTest: 'EnvironmentTest/glTF/EnvironmentTest.gltf',
+			DamagedHelmet: './assets/gltf/2.0/DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
+			FlightHelmet: './assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
+			MetalRoughSpheresNoTextures: './assets/gltf/2.0/MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
+			MetalRoughSpheres: './assets/gltf/2.0/MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
+			NormalTangentTest: './assets/gltf/2.0/NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
+			EnvironmentTest: './assets/gltf/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf',
 		} } );
 
 		gltfInput.on( 'change', ( e ) => {

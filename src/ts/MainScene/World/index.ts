@@ -56,7 +56,7 @@ export class World extends THREE.Object3D {
 
 	public loadGLTF( gltfSrc: string ) {
 
-		this.gltfLoader.load( './assets/gltf/2.0/' + gltfSrc, ( gltf ) => {
+		this.gltfLoader.load( gltfSrc, ( gltf ) => {
 
 			if ( this.model ) {
 
