@@ -33,7 +33,9 @@ export class World extends THREE.Object3D {
 		-------------------------------*/
 
 		let light = new THREE.DirectionalLight();
-		light.position.set( 1, 1, 1 );
+		light.castShadow = true;
+		light.position.set( 5.0, 5.0, 5.0 );
+		// light.shadow.bias = - 0.001;
 		this.add( light );
 
 		/*-------------------------------
@@ -70,11 +72,17 @@ export class World extends THREE.Object3D {
 
 				let mesh = obj as THREE.Mesh;
 
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
 				if ( mesh.isMesh ) {
 
 					let powerMesh = new PowerMesh( mesh, {
 						uniforms: this.commonUniforms
 					} );
+
+					powerMesh.castShadow = true;
+					powerMesh.receiveShadow = true;
 
 					if ( this.envMap ) {
 
@@ -171,7 +179,7 @@ export class World extends THREE.Object3D {
 
 	}
 
-	public fit( camera: THREE.PerspectiveCamera, controls: CameraControls ) {
+	public fit( camera: THREE.PerspectiveCamera, controls: CameraControls, cameraOffset: THREE.Vector3 = new THREE.Vector3( 2.0, 1.0, 2.0 ) ) {
 
 		if ( ! this.model ) return;
 
@@ -193,7 +201,7 @@ export class World extends THREE.Object3D {
 		const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
 
 		const direction = center.clone()
-			.sub( camera.position )
+			.sub( center.clone().add( cameraOffset ) )
 			.normalize()
 			.multiplyScalar( distance );
 

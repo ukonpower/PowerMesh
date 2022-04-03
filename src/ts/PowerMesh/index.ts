@@ -253,7 +253,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		this.userData.colorMat = this.material;
 
-		this.userData.depthMat = new THREE.ShaderMaterial( {
+		this.customDepthMaterial = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			side: THREE.DoubleSide,
@@ -379,19 +379,19 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				ShadowMap Depth
 			-------------------------------*/
 
-			if ( camera.userData.shadowCamera ) {
+			// if ( camera.userData.shadowCamera ) {
 
-				this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
-				this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
+			// 	this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
+			// 	this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
 
-				this.commonUniforms.shadowLightModelViewMatrix.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
-				this.commonUniforms.shadowLightProjectionMatrix.value.copy( camera.projectionMatrix );
+			// 	this.commonUniforms.shadowLightModelViewMatrix.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
+			// 	this.commonUniforms.shadowLightProjectionMatrix.value.copy( camera.projectionMatrix );
 
-				this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
-				camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
-				this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
+			// 	this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
+			// 	camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
+			// 	this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
 
-			}
+			// }
 
 		} );
 

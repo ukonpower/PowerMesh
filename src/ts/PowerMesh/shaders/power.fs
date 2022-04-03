@@ -244,17 +244,27 @@ uniform float maxLodLevel;
 	uniform float cameraNear;
 	uniform float cameraFar;
 
-#else
+#endif
 
-	uniform sampler2D shadowMap;
-	uniform vec2 shadowMapSize;
+#ifdef USE_SHADOWMAP
 
-	uniform vec2 shadowLightCameraClip;
-	uniform float shadowLightSize;
-	uniform vec3 shadowLightDirection;
-	varying vec3 vShadowMapCoord;
+#if NUM_DIR_LIGHT_SHADOWS > 0
 
-	#define SHADOW_SAMPLE_COUNT 8
+		uniform sampler2D directionalShadowMap[ NUM_DIR_LIGHT_SHADOWS ];
+		varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];
+
+		struct DirectionalLightShadow {
+			float shadowBias;
+			float shadowNormalBias;
+			float shadowRadius;
+			vec2 shadowMapSize;
+		};
+
+		uniform DirectionalLightShadow directionalLightShadows[ NUM_DIR_LIGHT_SHADOWS ];
+
+	#endif
+
+	#define SHADOW_SAMPLE_COUNT 4
 
 	vec2 poissonDisk[ SHADOW_SAMPLE_COUNT ];
 
@@ -279,7 +289,7 @@ uniform float maxLodLevel;
 		
 	}
 
-	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth, vec2 shadowLightCameraClip ) {
+	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth ) {
 
 		if( shadowMapUV.x < 0.0 || shadowMapUV.x > 1.0 || shadowMapUV.y < 0.0 || shadowMapUV.y > 1.0 ) {
 
@@ -287,30 +297,29 @@ uniform float maxLodLevel;
 
 		}
 
-		float d = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
+		float shadowMapDepth = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
 
-		if( 0.0 >= d || d >= 1.0 ) {
+		if( 0.0 >= shadowMapDepth || shadowMapDepth >= 1.0 ) {
 
 			return vec2( 1.0, 0.0 );
 
 		}
 		
-		float shadowMapDepth = shadowLightCameraClip.x + d * shadowLightCameraClip.y;
-		float shadow = depth < shadowMapDepth ? 1.0 : 0.0;
+		float shadow = depth <= shadowMapDepth ? 1.0 : 0.0;
 
 		return vec2( shadow, shadowMapDepth );
 		
 	}
 
-	float shadowMapPCF( sampler2D shadowMap, vec3 shadowMapCoord, vec2 shadowSize, vec2 shadowLightCameraClip ) {
+	float shadowMapPCF( sampler2D shadowMap, vec4 shadowMapCoord, vec2 shadowSize ) {
 
 		float shadow = 0.0;
-
+		
 		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i ++  ) {
 			
 			vec2 offset = poissonDisk[ i ] * shadowSize; 
 
-			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip ).x;
+			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z ).x;
 			
 		}
 
@@ -320,16 +329,16 @@ uniform float maxLodLevel;
 
 	}
 
-	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, vec2 shadowLightCameraClip, float dNL ) {
+	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, float bias, vec4 shadowMapCoord ) {
+		
+		shadowMapCoord.xyz /= shadowMapCoord.w;
+		shadowMapCoord.z += bias - 0.0001;
 
-		initPoissonDisk(0.0);
+		initPoissonDisk(time);
 
-		float bias = ( 1.0 - dNL ) * 0.05;
-		shadowMapCoord.z -= bias;
+		vec2 shadowSize = 1.0 / shadowMapSize;
 
-		vec2 shadowSize = 0.05 / shadowMapSize;
-
-		return shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowLightCameraClip );
+		return shadowMapPCF( shadowMap, shadowMapCoord, shadowSize );
 
 	}
 
@@ -528,14 +537,6 @@ void main( void ) {
 	/*-------------------------------
 		Lighting
 	-------------------------------*/
-
-	float shadow = 1.0;
-	
-	#ifndef DEPTH
-
-		shadow *= getShadow( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
-
-	#endif
 	
 	Light light;
 
@@ -546,6 +547,15 @@ void main( void ) {
 
 				light.direction = directionalLights[ i ].direction;
 				light.color = directionalLights[ i ].color;
+
+				float shadow = 1.0;
+				
+				#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
+
+					shadow = getShadow( directionalShadowMap[ i ], directionalLightShadows[ i ].shadowMapSize, directionalLightShadows[ i ].shadowBias, vDirectionalShadowCoord[ i ] );
+
+				#endif
+
 				outColor += RE( geo, mat, light ) * shadow;
 				
 			}

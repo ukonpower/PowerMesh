@@ -24,7 +24,7 @@ export class MainScene extends ORE.BaseLayer {
 	private pane: Pane;
 	private params = {
 		gltf: '',
-		environment: ''
+		engMap: ''
 	};
 
 	constructor() {
@@ -39,28 +39,32 @@ export class MainScene extends ORE.BaseLayer {
 
 		this.pane = new Pane();
 
-		let gltfInput = this.pane.addInput( this.params, 'gltf', { options: {
+		// scene
+
+		let folScene = this.pane.addFolder( { title: 'Scene' } );
+		folScene.addInput( this.params, 'gltf', { options: {
+			Shadow: './assets/gltf_power/shadow.glb',
 			DamagedHelmet: './assets/gltf/2.0/DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
 			FlightHelmet: './assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
 			MetalRoughSpheresNoTextures: './assets/gltf/2.0/MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
 			MetalRoughSpheres: './assets/gltf/2.0/MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			NormalTangentTest: './assets/gltf/2.0/NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
 			EnvironmentTest: './assets/gltf/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf',
-		} } );
-
-		gltfInput.on( 'change', ( e ) => {
+		} } ).on( 'change', ( e ) => {
 
 			this.loadGltf( e.value );
 
 		} );
 
-		let envMapInput = this.pane.addInput( this.params, 'environment', { options: {
+		// lighting
+
+		let folLighting = this.pane.addFolder( { title: 'Lighting' } );
+
+		folLighting.addInput( this.params, 'engMap', { options: {
 			green_point_park: 'green_point_park',
 			solitude_night: 'solitude_night',
 			studio_small: 'studio_small',
-		} } );
-
-		envMapInput.on( 'change', ( e ) =>{
+		} } ).on( 'change', ( e ) =>{
 
 			this.loadEnvMap( e.value );
 
@@ -83,6 +87,8 @@ export class MainScene extends ORE.BaseLayer {
 
 		if ( this.renderer ) {
 
+			this.renderer.shadowMap.enabled = true;
+
 			/*-------------------------------
 				RenderPipeline
 			-------------------------------*/
@@ -92,8 +98,6 @@ export class MainScene extends ORE.BaseLayer {
 			/*-------------------------------
 				CameraControls
 			-------------------------------*/
-
-			this.camera.position.set( 2, 1, 2 );
 
 			this.cameraControls = new CameraControls( this.camera, this.renderer.domElement );
 			this.cameraControls.dollySpeed = 0.1;
@@ -108,7 +112,7 @@ export class MainScene extends ORE.BaseLayer {
 		this.scene.add( this.world );
 
 		this.loadGltf( this.params.gltf );
-		this.loadEnvMap( this.params.environment );
+		this.loadEnvMap( this.params.engMap );
 
 		this.world.addEventListener( 'updateModel', () => {
 
