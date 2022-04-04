@@ -43,13 +43,13 @@ export class MainScene extends ORE.BaseLayer {
 
 		let folScene = this.pane.addFolder( { title: 'Scene' } );
 		folScene.addInput( this.params, 'gltf', { options: {
-			Shadow: './assets/gltf_power/shadow.glb',
 			DamagedHelmet: './assets/gltf/2.0/DamagedHelmet/gltf-Binary/DamagedHelmet.glb',
 			FlightHelmet: './assets/gltf/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
 			MetalRoughSpheresNoTextures: './assets/gltf/2.0/MetalRoughSpheresNoTextures/gltf-Binary/MetalRoughSpheresNoTextures.glb',
 			MetalRoughSpheres: './assets/gltf/2.0/MetalRoughSpheres/gltf-Binary/MetalRoughSpheres.glb',
 			NormalTangentTest: './assets/gltf/2.0/NormalTangentTest/gltf-Binary/NormalTangentTest.glb',
 			EnvironmentTest: './assets/gltf/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf',
+			Shadow: './assets/gltf_power/shadow.glb',
 		} } ).on( 'change', ( e ) => {
 
 			this.loadGltf( e.value );

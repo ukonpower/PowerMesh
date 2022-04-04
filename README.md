@@ -2,6 +2,7 @@
 
 Three.jsで使えるオレオレPBRマテリアル
 
+![powermesh](./screenshot/powermesh.png)
 ## Usage
 ### Install
 
