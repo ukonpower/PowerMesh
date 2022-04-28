@@ -1,10 +1,10 @@
 {
-  "name": "",
+  "name": "powermesh",
   "version": "0.0.1",
   "description": "",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/ukonpower/PowerMesh"
   },
   "scripts": {
     "dev": "npx gulp",
@@ -12,7 +12,7 @@
   },
   "author": "ukonpower",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/ukonpower/PowerMesh/issues"
   },
   "license": "MIT",
   "devDependencies": {
