@@ -10,6 +10,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 	protected commonUniforms: ORE.Uniforms;
 
 	// envMap
+	protected envMapResolution: number
 	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
 	protected envMapCamera: THREE.CubeCamera;
 	protected envMapUpdate: boolean;
@@ -246,7 +247,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			mat.defines.USE_EMISSION_MAP = '';
 
 		}
-
+	
 		super( geo, mat );
 
 		this.name = geoMesh.name;
@@ -288,10 +289,9 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		this.envMapSrc = null;
 		this.envMapUpdate = false;
+		this.envMapResolution = 256;
 
-		let envMapResolution = 256;
-
-		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( envMapResolution, {
+		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( this.envMapResolution, {
 			format: THREE.RGBAFormat,
 			generateMipmaps: true,
 			magFilter: THREE.LinearFilter,
@@ -347,11 +347,23 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 					this.envMapCamera.update( renderer, scene );
 					envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
-
+					
 					this.visible = true;
-
+					
 				}
 
+				// envmap
+				let envMapResolution = envMapRT.height
+
+				const maxMip = Math.round( Math.log2( envMapResolution ) ) - 2;
+				const texelHeight = 1.0 / envMapResolution;
+				const texelWidth = 1.0 / ( 3 * Math.max( Math.pow( 2, maxMip ), 7 * 16 ) );
+
+				mat.defines['USE_ENV_MAP'] = ''
+				mat.defines['CUBEUV_MAX_MIP'] = maxMip + '.0'
+				mat.defines['CUBEUV_TEXEL_WIDTH'] = texelWidth + ''
+				mat.defines['CUBEUV_TEXEL_HEIGHT'] = texelHeight + ''
+				
 				this.commonUniforms.envMap.value = envMapRT.texture;
 				this.envMapUpdate = false;
 

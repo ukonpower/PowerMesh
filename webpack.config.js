@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
     mode: 'development',
 	devtool: 'inline-source-map',
@@ -5,6 +7,7 @@ module.exports = {
 		main: './src/index.ts'
     },
     output: {
+		path: path.resolve(__dirname, "build"),
 		filename: 'powermesh' + '.js',
 		library: 'PowerMesh',
 		libraryTarget: 'umd',
