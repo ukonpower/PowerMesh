@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from 'ore-three-ts';
 
-import { PowerMesh } from '../index';
+import { PowerMesh } from '../PowerMesh';
 
 import mipmapVert from './shaders/mipmap.vs';
 import mipmapFrag from './shaders/mipmap.fs';
@@ -15,7 +15,7 @@ export class PowerReflectionMesh extends PowerMesh {
 	private renderTargets: {
 		ref: THREE.WebGLRenderTarget,
 		mipmap: THREE.WebGLRenderTarget
-	}
+	};
 
 	/*-------------------------------
 		Mipmap
