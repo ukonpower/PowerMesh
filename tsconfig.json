@@ -11,7 +11,7 @@
     ],
     "typeRoots": ["node_modules/@types"],
     "rootDir": "./src/",
-    "outDir": "./public"
+    "outDir": "./dist"
   },
   "include": ["./src/"]
 } 

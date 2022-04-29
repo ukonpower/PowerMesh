@@ -11,6 +11,11 @@
 		"url": "https://github.com/ukonpower/PowerMesh/issues"
 	},
 	"license": "MIT",
+	"main": "src/index.ts",
+	"files": [
+		"build",
+		"src"
+	],
 	"scripts": {
 		"dev": "webpack --mode development --watch",
 		"build": "webpack --mode production"
