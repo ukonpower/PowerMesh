@@ -1,10 +1,7 @@
 module.exports = {
-	watch: true,
-	watchOptions: {
-		aggregateTimeout: 100,
-	},
     mode: 'development',
     entry: {
+		
     },
     output: {
     },
@@ -26,7 +23,7 @@ module.exports = {
 								['glslify-hex'],
 								['glslify-import']
 							],
-							basedir: './src/glsl-chunks'
+							basedir: './src/glsl'
 						}
 					}
 				]
