@@ -1,1 +1,2 @@
-export * from "./PowerMesh";
+export {PowerMesh} from "./PowerMesh";
+export {PowerReflectionMesh} from "./PowerReflectMesh";
