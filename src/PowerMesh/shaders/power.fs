@@ -93,7 +93,7 @@ uniform float time;
 
 #endif
 
-#ifdef REFLECTPLANE
+#ifdef IS_REFLECTIONPLANE
 
 	uniform sampler2D reflectionTex;
 	uniform vec2 renderResolution;
@@ -178,9 +178,7 @@ struct Material {
 
 #define REF_MIPMAP_LEVEL 8.0
 
-#ifdef REFLECTPLANE
-
-	uniform vec3 a;
+#ifdef IS_REFLECTIONPLANE
 
 	vec2 getRefMipmapUV( vec2 uv, float level ) {
 
@@ -599,13 +597,18 @@ void main( void ) {
 
 	#endif
 
+	#if defined( USE_ENV_MAP ) || defined( IS_REFLECTIONPLANE )
+
+		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+		float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
+
+	#endif
+
 	/*-------------------------------
 		Environment Lighting
 	-------------------------------*/
 
 	#ifdef USE_ENV_MAP
-
-		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
 		vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 		refDir.x *= -1.0;
@@ -613,40 +616,37 @@ void main( void ) {
 		vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) ) * iblIntensity * envMapIntensity;
 		outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
-		/*-------------------------------
-			Reflection
-		-------------------------------*/
-		
-		float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-
-		#ifdef REFLECTPLANE
-		
-			vec2 refUV = gl_FragCoord.xy / renderResolution;
-
-			refUV.x += geo.normal.x * 0.5;
-
-			float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
-
-			float offset1 = floor( l );
-			float offset2 = offset1 + 1.0;
-			float blend = fract( l );
-			
-			vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
-			vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
-
-			vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
-			vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
-
-			outColor += mix( ref1, ref2, blend ) * EF;
-
-		#else
-		
-			outColor += mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * EF * envMapIntensity;
-		
-		#endif
-
 	#endif
 
+	/*-------------------------------
+		Reflection
+	-------------------------------*/
+	
+	#ifdef IS_REFLECTIONPLANE
+	
+		vec2 refUV = gl_FragCoord.xy / renderResolution;
+
+		refUV.x += geo.normal.x * 0.5;
+
+		float l = (mat.roughness ) * 1.6 * REF_MIPMAP_LEVEL;
+
+		float offset1 = floor( l );
+		float offset2 = offset1 + 1.0;
+		float blend = fract( l );
+		
+		vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
+		vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
+
+		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
+		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
+
+		outColor = mix( outColor, mix( ref1, ref2, blend ), EF );
+
+	#elif defined( USE_ENV_MAP )
+	
+		outColor = mix( outColor, mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * envMapIntensity, EF );
+	
+	#endif
 
 	/*-------------------------------
 		Emission

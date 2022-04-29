@@ -70,8 +70,7 @@ export class PowerReflectionMesh extends PowerMesh {
 		} );
 
 		materialOption.defines = {
-			REFLECTPLANE: '',
-			// USE_ENV_MAP: ''
+			IS_REFLECTIONPLANE: '',
 		};
 
 		super( geoMesh as THREE.BufferGeometry, materialOption, override );
@@ -171,8 +170,6 @@ export class PowerReflectionMesh extends PowerMesh {
 			let renderer = e.renderer as THREE.WebGLRenderer;
 			let scene = e.scene as THREE.Scene;
 			let camera = e.camera as THREE.Camera;
-
-			if ( ! camera.userData.mainCamera ) return;
 
 			this.reflectorWorldPosition.setFromMatrixPosition( this.matrixWorld );
 			this.cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
@@ -285,7 +282,6 @@ export class PowerReflectionMesh extends PowerMesh {
 			if ( rt ) {
 
 				this.commonUniforms.renderResolution.value.set( rt.width, rt.height );
-
 
 			} else {
 
