@@ -10,17 +10,17 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 	protected commonUniforms: ORE.Uniforms;
 
 	// envMap
-	protected envMapResolution: number
+	protected envMapResolution: number;
 	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
 	protected envMapCamera: THREE.CubeCamera;
 	protected envMapUpdate: boolean;
 	protected envMapSrc: THREE.CubeTexture | THREE.Texture | null;
 
-	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
+	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
-	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters );
+	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
-	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters ) {
+	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean ) {
 
 		materialOption = materialOption || {};
 
@@ -247,7 +247,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			mat.defines.USE_EMISSION_MAP = '';
 
 		}
-	
+
 		super( geo, mat );
 
 		this.name = geoMesh.name;
@@ -275,11 +275,31 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			Transform
 		-------------------------------*/
 
-		if ( 'isMesh' in geoMesh ) {
+		if ( 'isMesh' in geoMesh && override ) {
+
+			geoMesh.geometry.dispose();
+
+			let childArray = geoMesh.children.slice();
+
+			childArray.forEach( child => {
+
+				this.add( child );
+
+			} );
 
 			this.position.copy( geoMesh.position );
 			this.rotation.copy( geoMesh.rotation );
 			this.scale.copy( geoMesh.scale );
+
+			let parent = geoMesh.parent;
+
+			if ( parent ) {
+
+				parent.add( this );
+
+				parent.remove( geoMesh );
+
+			}
 
 		}
 
@@ -347,23 +367,23 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 					this.envMapCamera.update( renderer, scene );
 					envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
-					
+
 					this.visible = true;
-					
+
 				}
 
 				// envmap
-				let envMapResolution = envMapRT.height
+				let envMapResolution = envMapRT.height;
 
 				const maxMip = Math.round( Math.log2( envMapResolution ) ) - 2;
 				const texelHeight = 1.0 / envMapResolution;
 				const texelWidth = 1.0 / ( 3 * Math.max( Math.pow( 2, maxMip ), 7 * 16 ) );
 
-				mat.defines['USE_ENV_MAP'] = ''
-				mat.defines['CUBEUV_MAX_MIP'] = maxMip + '.0'
-				mat.defines['CUBEUV_TEXEL_WIDTH'] = texelWidth + ''
-				mat.defines['CUBEUV_TEXEL_HEIGHT'] = texelHeight + ''
-				
+				mat.defines[ 'USE_ENV_MAP' ] = '';
+				mat.defines[ 'CUBEUV_MAX_MIP' ] = maxMip + '.0';
+				mat.defines[ 'CUBEUV_TEXEL_WIDTH' ] = texelWidth + '';
+				mat.defines[ 'CUBEUV_TEXEL_HEIGHT' ] = texelHeight + '';
+
 				this.commonUniforms.envMap.value = envMapRT.texture;
 				this.envMapUpdate = false;
 
@@ -386,24 +406,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				}
 
 			}
-
-			/*-------------------------------
-				ShadowMap Depth
-			-------------------------------*/
-
-			// if ( camera.userData.shadowCamera ) {
-
-			// 	this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
-			// 	this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
-
-			// 	this.commonUniforms.shadowLightModelViewMatrix.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
-			// 	this.commonUniforms.shadowLightProjectionMatrix.value.copy( camera.projectionMatrix );
-
-			// 	this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
-			// 	camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
-			// 	this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
-
-			// }
 
 		} );
 

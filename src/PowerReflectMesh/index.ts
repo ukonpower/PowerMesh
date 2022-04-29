@@ -46,11 +46,11 @@ export class PowerReflectionMesh extends PowerMesh {
 
 	private textureMatrix: THREE.Matrix4;
 
-	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
+	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
-	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters );
+	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
-	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh<THREE.BufferGeometry>, materialOption?: THREE.ShaderMaterialParameters ) {
+	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh<THREE.BufferGeometry>, materialOption?: THREE.ShaderMaterialParameters, override?: boolean ) {
 
 		materialOption = materialOption || {};
 
@@ -69,9 +69,12 @@ export class PowerReflectionMesh extends PowerMesh {
 			}
 		} );
 
-		super( geoMesh as THREE.BufferGeometry, materialOption );
+		materialOption.defines = {
+			REFLECTPLANE: '',
+			// USE_ENV_MAP: ''
+		};
 
-		this.material.defines.REFLECTPLANE = '';
+		super( geoMesh as THREE.BufferGeometry, materialOption, override );
 
 		this.reflectorPlane = new THREE.Plane();
 		this.normal = new THREE.Vector3();
