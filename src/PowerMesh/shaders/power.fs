@@ -6,8 +6,6 @@ varying vec3 vBitangent;
 	Require
 -------------------------------*/
 
-#pragma glslify: import('./constants.glsl' )
-
 #include <packing>
 
 vec2 packing16( float value ) { 
@@ -27,6 +25,7 @@ vec2 packing16( float value ) {
 	Requiers
 -------------------------------*/
 
+#include <common>
 #pragma glslify: random = require('./random.glsl' )
 
 /*-------------------------------
@@ -161,13 +160,17 @@ struct Material {
 	EnvMap
 -------------------------------*/
 
-uniform sampler2D envMap;
-uniform float envMapIntensity;
-uniform float iblIntensity;
-uniform float maxLodLevel;
+#ifdef USE_ENV_MAP
 
-#define ENVMAP_TYPE_CUBE_UV
-#include <cube_uv_reflection_fragment>
+	uniform sampler2D envMap;
+	uniform float envMapIntensity;
+	uniform float iblIntensity;
+	uniform float maxLodLevel;
+
+	#define ENVMAP_TYPE_CUBE_UV
+	#include <cube_uv_reflection_fragment>
+
+#endif
 
 /*-------------------------------
 	Reflection
@@ -273,8 +276,8 @@ uniform float maxLodLevel;
 		float r = 0.1;
 		float rStep = (1.0 - r) / float( SHADOW_SAMPLE_COUNT );
 
-		float ang = random( gl_FragCoord.xy * 0.01 + sin( time ) ) * TPI * 1.0;
-		float angStep = ( ( TPI * 11.0 ) / float( SHADOW_SAMPLE_COUNT ) );
+		float ang = random( gl_FragCoord.xy * 0.01 + sin( time ) ) * PI2 * 1.0;
+		float angStep = ( ( PI2 * 11.0 ) / float( SHADOW_SAMPLE_COUNT ) );
 		
 		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {
 
@@ -600,45 +603,50 @@ void main( void ) {
 		Environment Lighting
 	-------------------------------*/
 
-	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+	#ifdef USE_ENV_MAP
 
-	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
-	refDir.x *= -1.0;
+		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
-	vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) ) * iblIntensity * envMapIntensity;
-	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
-
-	/*-------------------------------
-		Reflection
-	-------------------------------*/
+		vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
+		refDir.x *= -1.0;
 	
-	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
+		vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) ) * iblIntensity * envMapIntensity;
+		outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
-	#ifdef REFLECTPLANE
-	
-		vec2 refUV = gl_FragCoord.xy / renderResolution;
-
-		refUV.x += geo.normal.x * 0.5;
-
-		float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
-
-		float offset1 = floor( l );
-		float offset2 = offset1 + 1.0;
-		float blend = fract( l );
+		/*-------------------------------
+			Reflection
+		-------------------------------*/
 		
-		vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
-		vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
+		float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 
-		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
-		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
+		#ifdef REFLECTPLANE
+		
+			vec2 refUV = gl_FragCoord.xy / renderResolution;
 
-		outColor += mix( ref1, ref2, blend ) * EF;
+			refUV.x += geo.normal.x * 0.5;
 
-	#else
-	
-		outColor += mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * EF * envMapIntensity;
-	
+			float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
+
+			float offset1 = floor( l );
+			float offset2 = offset1 + 1.0;
+			float blend = fract( l );
+			
+			vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
+			vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
+
+			vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
+			vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
+
+			outColor += mix( ref1, ref2, blend ) * EF;
+
+		#else
+		
+			outColor += mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * EF * envMapIntensity;
+		
+		#endif
+
 	#endif
+
 
 	/*-------------------------------
 		Emission
