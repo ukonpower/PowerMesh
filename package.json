@@ -1,24 +1,25 @@
 {
-	"name": "powermesh",
+	"name": "power-mesh",
 	"version": "0.0.1",
 	"description": "",
 	"author": "ukonpower",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ukonpower/PowerMesh"
+		"url": "https://github.com/ukonpower/power-mesh"
 	},
-	"bugs": {
-		"url": "https://github.com/ukonpower/PowerMesh/issues"
+	"bugs": {	
+		"url": "https://github.com/ukonpower/power-mesh/issues"
 	},
 	"license": "MIT",
-	"main": "src/index.ts",
+	"main": "build/power-mesh.js",
+	"types": "types/index.d.ts",
 	"files": [
 		"build",
-		"src"
+		"types"
 	],
 	"scripts": {
-		"dev": "webpack --mode development --watch",
-		"build": "webpack --mode production"
+		"dev": "webpack --mode development --watch & tsc --declaration --emitDeclarationOnly -preserveWatchOutput -w",
+		"build": "webpack --mode production && tsc --declaration --emitDeclarationOnly"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.16.12",
