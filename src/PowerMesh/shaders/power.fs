@@ -600,7 +600,7 @@ void main( void ) {
 	#if defined( USE_ENV_MAP ) || defined( IS_REFLECTIONPLANE )
 
 		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
-		float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
+		float EF = fresnel( dNV );
 
 	#endif
 
@@ -613,7 +613,7 @@ void main( void ) {
 		vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 		refDir.x *= -1.0;
 	
-		vec4 envMapColor = LinearTosRGB( textureCubeUV( envMap, geo.normalWorld, 1.0 ) ) * iblIntensity * envMapIntensity;
+		vec4 envMapColor = textureCubeUV( envMap, geo.normalWorld, 1.0 ) * iblIntensity * envMapIntensity;
 		outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	#endif
@@ -640,11 +640,23 @@ void main( void ) {
 		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
 		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
 
-		outColor = mix( outColor, mix( ref1, ref2, blend ), EF );
+		vec3 ref = mat.specularColor * mix( ref1, ref2, blend );
+
+		outColor = mix(
+			outColor + ref * mat.metalness,
+			ref,
+			EF
+		);
 
 	#elif defined( USE_ENV_MAP )
 	
-		outColor = mix( outColor, mat.specularColor * LinearTosRGB( textureCubeUV( envMap, refDir, mat.roughness ) ).xyz * envMapIntensity, EF );
+		vec3 env = mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * envMapIntensity;
+	
+		outColor = mix(
+			outColor + env * mat.metalness,
+			env,
+			EF
+		);
 	
 	#endif
 
