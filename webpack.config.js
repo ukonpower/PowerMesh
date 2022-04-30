@@ -8,7 +8,7 @@ module.exports = {
     },
     output: {
 		path: path.resolve(__dirname, "build"),
-		filename: 'powermesh' + '.js',
+		filename: 'power-mesh' + '.js',
 		library: 'PowerMesh',
 		libraryTarget: 'umd',
     },
