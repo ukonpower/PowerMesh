@@ -66,6 +66,22 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			},
 			cameraFar: {
 				value: 1000.0
+			},
+			// default props
+			color: {
+				value: new THREE.Color( 1.0, 1.0, 1.0 )
+			},
+			metalness: {
+				value: 0
+			},
+			roughness: {
+				value: 0.5
+			},
+			opacity: {
+				value: 1
+			},
+			emission: {
+				value: new THREE.Color( 0.0, 0.0, 0.0 )
 			}
 		} );
 
@@ -97,9 +113,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				} else if ( mat.color ) {
 
-					uni.color = {
-						value: mat.color
-					};
+					uni.color.value.copy( mat.color );
 
 				}
 
@@ -111,9 +125,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				} else {
 
-					uni.roughness = {
-						value: mat.roughness
-					};
+					uni.roughness.value = mat.roughness;
 
 				}
 
@@ -125,13 +137,13 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				} else {
 
-					uni.opacity = {
-						value: mat.opacity
-					};
+					uni.opacity.value = mat.opacity;
 
 				}
 
 				if ( mat.metalnessMap ) {
+
+					console.log( mat.metalnessMap );
 
 					uni.metalnessMap = {
 						value: mat.metalnessMap
@@ -139,9 +151,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				} else {
 
-					uni.metalness = {
-						value: mat.metalness
-					};
+					uni.metalness.value = mat.metalness;
 
 				}
 
@@ -161,9 +171,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				} else {
 
-					uni.emission = {
-						value: mat.emissive
-					};
+					uni.emission.value.copy( mat.emissive );
 
 				}
 
