@@ -143,8 +143,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				if ( mat.metalnessMap ) {
 
-					console.log( mat.metalnessMap );
-
 					uni.metalnessMap = {
 						value: mat.metalnessMap
 					};
