@@ -7,7 +7,7 @@
 		"type": "git",
 		"url": "https://github.com/ukonpower/power-mesh"
 	},
-	"bugs": {	
+	"bugs": {
 		"url": "https://github.com/ukonpower/power-mesh/issues"
 	},
 	"license": "MIT",
@@ -26,7 +26,7 @@
 		"@babel/preset-env": "^7.16.11",
 		"@babel/register": "^7.16.9",
 		"@tweakpane/core": "^1.0.9",
-		"@types/three": "^0.139.0",
+		"@types/three": "^0.140.0",
 		"@typescript-eslint/eslint-plugin": "^5.10.1",
 		"@typescript-eslint/parser": "^5.10.1",
 		"browser-sync": "^2.27.7",
@@ -43,7 +43,7 @@
 	},
 	"dependencies": {
 		"ore-three-ts": "^2.1.1",
-		"three": "^0.139.2"
+		"three": "^0.140.0"
 	},
 	"volta": {
 		"node": "16.14.2"
