@@ -441,6 +441,7 @@ void main( void ) {
 
 		vec4 color = LinearTosRGB( texture2D( map, vUv ) );
 		mat.albedo = color.xyz;
+		mat.opacity = color.w;
 
 	#else
 
@@ -475,11 +476,11 @@ void main( void ) {
 
 	#else
 
-		mat.opacity = opacity;
+		mat.opacity *= opacity;
 
 	#endif
 	
-	if( mat.opacity < 0.5 ) discard;
+	// if( mat.opacity < 0.5 ) discard;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
