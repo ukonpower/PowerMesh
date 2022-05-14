@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as ORE from 'ore-three-ts';
+import * as ORE from 'ore-three';
 export declare type PowerMeshMaterialType = 'color' | 'depth' | 'coc';
 export declare class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
     protected commonUniforms: ORE.Uniforms;

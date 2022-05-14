@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as ORE from 'ore-three-ts';
+import * as ORE from 'ore-three';
 
 import powerVert from './shaders/power.vs';
 import powerFrag from './shaders/power.fs';
@@ -479,5 +479,5 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		return true;
 
 	}
-
+	
 }

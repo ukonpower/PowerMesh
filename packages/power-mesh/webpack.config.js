@@ -1,13 +1,16 @@
+const path = require('path');
+
 module.exports = {
-	watch: true,
-	watchOptions: {
-		aggregateTimeout: 100,
-		poll: 500
-	},
     mode: 'development',
+	devtool: 'inline-source-map',
     entry: {
+		main: './src/index.ts'
     },
     output: {
+		path: path.resolve(__dirname, "build"),
+		filename: 'power-mesh' + '.js',
+		library: 'PowerMesh',
+		libraryTarget: 'umd',
     },
     module: {
         rules: [{
@@ -27,15 +30,29 @@ module.exports = {
 								['glslify-hex'],
 								['glslify-import']
 							],
-							basedir: './src/examples/glsl-chunks'
+							basedir: './src/glsl'
 						}
 					}
 				]
 			}
         ]
     },
+	externals: {
+		'three': {
+			commonjs: 'three',
+			commonjs2: 'three',
+			amd: 'three',
+			root: 'THREE'
+		},
+		'ore-three': {
+			commonjs: 'ore-three',
+			commonjs2: 'ore-three',
+			amd: 'ore-three',
+			root: 'ORE'
+		}
+	},
     resolve: {
-        extensions: [".ts", ".js", '.d.ts']
+        extensions: [".ts", ".js"]
 	},
 	cache: {
 		type: 'filesystem',
