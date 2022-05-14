@@ -55,6 +55,7 @@ const lint = ( cb ) => {
 const setDevMode = ( cb ) => {
 
 	webpackConfig.mode = 'development';
+	webpackConfig.watch = true
 	
 	cb();
 	
@@ -63,6 +64,7 @@ const setDevMode = ( cb ) => {
 const setPrdMode = ( cb ) => {
 
 	webpackConfig.mode = 'production';
+	webpackConfig.watch = false
 	
 	cb();
 	

@@ -10,7 +10,7 @@
 	"scripts": {
 		"dev": "npx gulp & npm run dev -w packages/power-mesh",
 		"dev-package": "npm run dev -w packages/power-mesh",
-		"build": "npx gulp build",
+		"build": "npm run build -w packages/power-mesh && npx gulp build",
 		"build-package": "npm run build -w packages/power-mesh"
 	},
 	"author": "ukonpower",
