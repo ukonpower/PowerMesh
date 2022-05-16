@@ -7,13 +7,13 @@ import { Uniform } from 'three';
 
 export class GlobalManager {
 
-	public eRay: EasyRaycaster
+	public eRay: EasyRaycaster;
 	public assetManager: AssetManager;
 	public animator: ORE.Animator;
 
 	constructor( ) {
 
-		window.gManager = this;
+		window.powerMesh.gManager = this;
 
 		this.animator = new ORE.Animator();
 		this.assetManager = new AssetManager();
