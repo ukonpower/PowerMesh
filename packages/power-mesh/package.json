@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"description": "",
 	"author": "ukonpower",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ukonpower/power-mesh"
@@ -10,9 +11,8 @@
 	"bugs": {
 		"url": "https://github.com/ukonpower/power-mesh/issues"
 	},
-	"license": "MIT",
-	"main": "build/power-mesh.js",
-	"types": "types/index.d.ts",
+	"main": "./build/power-mesh.js",
+	"types": "./types/index.d.ts",
 	"files": [
 		"build",
 		"types"
