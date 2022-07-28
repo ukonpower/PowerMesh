@@ -11,6 +11,7 @@ module.exports = {
 		filename: 'power-mesh' + '.js',
 		library: 'PowerMesh',
 		libraryTarget: 'umd',
+		globalObject: 'this',
     },
     module: {
         rules: [{
