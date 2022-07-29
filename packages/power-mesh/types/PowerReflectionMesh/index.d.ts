@@ -19,5 +19,5 @@ export declare class PowerReflectionMesh extends PowerMesh {
     private textureMatrix;
     constructor(geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters, override?: boolean);
     constructor(mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean);
-    private resize;
+    resize(size?: THREE.Vector2): void;
 }

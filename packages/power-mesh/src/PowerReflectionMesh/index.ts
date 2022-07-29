@@ -296,12 +296,11 @@ export class PowerReflectionMesh extends PowerMesh {
 
 	}
 
-	private resize() {
+	public resize( size: THREE.Vector2 = new THREE.Vector2  ) {
 
-		let size = 512;
-		this.renderTargets.ref.setSize( size, size );
+		this.renderTargets.ref.setSize( size.x, size.y );
 
-		let mipMapSize = new THREE.Vector2( size * 1.5, size );
+		let mipMapSize = new THREE.Vector2( size.x * 1.5, size.y );
 		this.renderTargets.mipmap.setSize( mipMapSize.x, mipMapSize.y );
 		this.commonUniforms.mipMapResolution.value.copy( mipMapSize );
 

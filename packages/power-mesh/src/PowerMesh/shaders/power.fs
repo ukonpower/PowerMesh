@@ -550,7 +550,6 @@ void main( void ) {
 				light.direction = directionalLights[ i ].direction;
 				light.color = directionalLights[ i ].color;
 
-				float shadow = 1.0;
 				
 				#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
 
