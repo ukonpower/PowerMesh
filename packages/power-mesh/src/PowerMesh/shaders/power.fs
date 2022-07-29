@@ -544,13 +544,15 @@ void main( void ) {
 
 	#if NUM_DIR_LIGHTS > 0
 
+		float shadow;
+
 		#pragma unroll_loop_start
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 				light.direction = directionalLights[ i ].direction;
 				light.color = directionalLights[ i ].color;
+				shadow = 1.0;
 
-				
 				#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
 
 					shadow = getShadow( directionalShadowMap[ i ], directionalLightShadows[ i ].shadowMapSize, directionalLightShadows[ i ].shadowBias, vDirectionalShadowCoord[ i ] );
