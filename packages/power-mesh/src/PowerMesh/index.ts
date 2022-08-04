@@ -5,7 +5,7 @@ import powerVert from './shaders/power.vs';
 import powerFrag from './shaders/power.fs';
 
 export type PowerMeshMaterialType = 'color' | 'depth' | 'coc'
-export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
+export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
 
 	protected commonUniforms: ORE.Uniforms;
 
@@ -18,9 +18,11 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
+	constructor( geometry: THREE.SkinnedMesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
+
 	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
-	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean ) {
+	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh | THREE.SkinnedMesh, materialOption?: THREE.ShaderMaterialParameters, override?: boolean ) {
 
 		materialOption = materialOption || {};
 
@@ -310,6 +312,34 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		}
 
 		/*-------------------------------
+			Animation
+		-------------------------------*/
+
+		if ( "isMesh" in geoMesh ) {
+
+			geoMesh.animations.forEach( item => {
+
+				this.animations.push( item );
+
+			} );
+
+			if ( "isSkinnedMesh" in geoMesh ) {
+
+				if ( geoMesh.skeleton ) {
+
+					this.skeleton = geoMesh.skeleton;
+
+				}
+
+			} else {
+
+				this.skeleton = new THREE.Skeleton( [] );
+
+			}
+
+		}
+
+		/*-------------------------------
 			EnvMap
 		-------------------------------*/
 
@@ -479,5 +509,5 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		return true;
 
 	}
-	
+
 }
