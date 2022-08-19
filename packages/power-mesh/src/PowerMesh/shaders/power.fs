@@ -553,7 +553,7 @@ void main( void ) {
 				light.color = directionalLights[ i ].color;
 				shadow = 1.0;
 
-				#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
+				#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHTS < NUM_DIR_LIGHT_SHADOWS
 
 					shadow = getShadow( directionalShadowMap[ i ], directionalLightShadows[ i ].shadowMapSize, directionalLightShadows[ i ].shadowBias, vDirectionalShadowCoord[ i ] );
 
