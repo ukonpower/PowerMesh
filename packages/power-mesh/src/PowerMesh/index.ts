@@ -1,20 +1,22 @@
-import * as THREE from 'three';
 import * as ORE from 'ore-three';
+import * as THREE from 'three';
 
-import powerVert from './shaders/power.vs';
 import powerFrag from './shaders/power.fs';
+import powerVert from './shaders/power.vs';
 
 export type PowerMeshMaterialType = 'color' | 'depth' | 'coc'
 export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
 
-	protected commonUniforms: ORE.Uniforms;
+	public commonUniforms: ORE.Uniforms;
 
 	// envMap
 	protected envMapResolution: number;
-	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
+	protected cubeTextureRenderTarget: THREE.WebGLCubeRenderTarget;
+	protected envMapRenderTarget: THREE.WebGLRenderTarget | null = null;
 	protected envMapCamera: THREE.CubeCamera;
 	protected envMapUpdate: boolean;
 	protected envMapSrc: THREE.CubeTexture | THREE.Texture | null;
+	protected pmremGenerator: THREE.PMREMGenerator | null = null;
 
 	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters, override?: boolean );
 
@@ -103,7 +105,7 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 			geo = geoMesh.geometry;
 
-			let mat = ( geoMesh.material as THREE.MeshStandardMaterial );
+			const mat = ( geoMesh.material as THREE.MeshStandardMaterial );
 
 			if ( mat.isMeshStandardMaterial ) {
 
@@ -206,7 +208,7 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 		materialOption.uniforms = uni;
 
-		let mat = new THREE.ShaderMaterial( {
+		const mat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			lights: true,
@@ -287,7 +289,7 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 			geoMesh.geometry.dispose();
 
-			let childArray = geoMesh.children.slice();
+			const childArray = geoMesh.children.slice();
 
 			childArray.forEach( child => {
 
@@ -299,7 +301,7 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 			this.rotation.copy( geoMesh.rotation );
 			this.scale.copy( geoMesh.scale );
 
-			let parent = geoMesh.parent;
+			const parent = geoMesh.parent;
 
 			if ( parent ) {
 
@@ -347,14 +349,14 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 		this.envMapUpdate = false;
 		this.envMapResolution = 256;
 
-		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( this.envMapResolution, {
+		this.cubeTextureRenderTarget = new THREE.WebGLCubeRenderTarget( this.envMapResolution, {
 			format: THREE.RGBAFormat,
 			generateMipmaps: true,
 			magFilter: THREE.LinearFilter,
 			minFilter: THREE.LinearFilter
 		} );
 
-		this.envMapCamera = new THREE.CubeCamera( 0.001, 1000, this.envMapRenderTarget );
+		this.envMapCamera = new THREE.CubeCamera( 0.001, 1000, this.cubeTextureRenderTarget );
 		this.getWorldPosition( this.envMapCamera.position );
 
 		this.onBeforeRender = ( renderer, scene, camera ) => {
@@ -370,9 +372,9 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
-			let renderer = e.renderer;
-			let scene = e.scene;
-			let camera = e.camera;
+			const renderer = e.renderer;
+			const scene = e.scene;
+			const camera = e.camera;
 
 			/*-------------------------------
 				EnvMap
@@ -380,20 +382,24 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 			if ( this.envMapUpdate ) {
 
-				let envMapRT: THREE.WebGLRenderTarget | null = null;
+				if ( this.envMapRenderTarget ) {
 
-				let pmremGenerator = new THREE.PMREMGenerator( renderer );
-				pmremGenerator.compileEquirectangularShader();
+					this.envMapRenderTarget.dispose()
+
+				}
+
+				this.pmremGenerator = new THREE.PMREMGenerator( renderer );
+				this.pmremGenerator.compileEquirectangularShader();
 
 				if ( this.envMapSrc ) {
 
 					if ( 'isCubeTexture' in this.envMapSrc ) {
 
-						envMapRT = pmremGenerator.fromCubemap( this.envMapSrc );
+						this.envMapRenderTarget = this.pmremGenerator.fromCubemap( this.envMapSrc );
 
 					} else {
 
-						envMapRT = pmremGenerator.fromEquirectangular( this.envMapSrc );
+						this.envMapRenderTarget = this.pmremGenerator.fromEquirectangular( this.envMapSrc );
 
 					}
 
@@ -402,26 +408,27 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 					this.visible = false;
 
 					this.envMapCamera.update( renderer, scene );
-					envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
+					this.envMapRenderTarget = this.pmremGenerator.fromCubemap( this.cubeTextureRenderTarget.texture );
 
 					this.visible = true;
 
 				}
 
 				// envmap
-				let envMapResolution = envMapRT.height;
+				const envMapResolution = this.envMapRenderTarget.height;
 
 				const maxMip = Math.round( Math.log2( envMapResolution ) ) - 2;
 				const texelHeight = 1.0 / envMapResolution;
 				const texelWidth = 1.0 / ( 3 * Math.max( Math.pow( 2, maxMip ), 7 * 16 ) );
 
-				mat.defines[ 'USE_ENV_MAP' ] = '';
-				mat.defines[ 'CUBEUV_MAX_MIP' ] = maxMip + '.0';
-				mat.defines[ 'CUBEUV_TEXEL_WIDTH' ] = texelWidth + '';
-				mat.defines[ 'CUBEUV_TEXEL_HEIGHT' ] = texelHeight + '';
+				mat.defines['USE_ENV_MAP'] = '';
+				mat.defines['CUBEUV_MAX_MIP'] = maxMip + '.0';
+				mat.defines['CUBEUV_TEXEL_WIDTH'] = texelWidth + '';
+				mat.defines['CUBEUV_TEXEL_HEIGHT'] = texelHeight + '';
 
-				this.commonUniforms.envMap.value = envMapRT.texture;
+				this.commonUniforms.envMap.value = this.envMapRenderTarget.texture;
 				this.envMapUpdate = false;
+				this.material.needsUpdate = true;
 
 			}
 
@@ -451,9 +458,19 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 		const onDispose = () => {
 
-			this.envMapRenderTarget.dispose();
+			this.cubeTextureRenderTarget.dispose();
 			this.geometry.dispose();
 			this.material.dispose();
+
+			if ( this.pmremGenerator ) {
+				this.pmremGenerator.dispose()
+			}
+
+			if ( this.envMapRenderTarget ) {
+
+				this.envMapRenderTarget.dispose()
+
+			}
 
 			this.removeEventListener( 'dispose', onDispose );
 
@@ -500,7 +517,7 @@ export class PowerMesh extends THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Sha
 
 	public dispose() {
 
-		this.dispatchEvent( { type: 'dispsoe' } );
+		this.dispatchEvent( { type: 'dispose' } );
 
 	}
 
